@@ -63,7 +63,7 @@ def optionsData(stock):
     puts = opt_chain.puts
    
 def fundData():
-    anEarnings = stockData.earnings
+    anEarnings = stockData.income_stmt
     print(anEarnings)
 
 def pData():
@@ -74,14 +74,13 @@ def pData():
     while answer == False:
         yData = input("Do you want more basic information on the ticker provided? (Yes or No ONLY)")
         yData = yData.strip().upper()
-        print(yData)
-        if yData == "YES":
+        if yData == "YES" or yData == "Y":
             print("Company Name: " + str(info.get("longName")))
             print("Sector: " + str(info.get("sector")))
             print("Industry: " + str(info.get("industry")))
             print("Market Cap: " + str(info.get("marketCap")))
             answer = True
-        elif yData == "NO":
+        elif yData == "NO" or yData == "N":
             print("Great!")
             answer = True
         else:
