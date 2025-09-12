@@ -13,15 +13,16 @@ def getTicker():
     stockName = input("Enter the ticker you would like to analyze: ")
     global stockData
     stockData = stockData = yf.Ticker(stockName)
-    stockCheck(stockName)
+    stockCheck()
 
 
-def stockCheck(stockName):
+def stockCheck():
     stockHis = stockData.history(period ="5d")
     return stockHis.empty
 
 #downloading YF data
-def stockInfo(stockName):
+def stockInfo():
+    global stock
     stock = yf.download(stockName, start="2022-01-01", end="2025-09-08", interval="1d", auto_adjust=True)
     if isinstance(stock.columns, pd.MultiIndex):
         stock.columns = stock.columns.get_level_values(0)
@@ -31,6 +32,8 @@ def stockInfo(stockName):
     stock["SMA_50"] = stock["Close"].rolling(window=50).mean()
     stock["SMA_200"] = stock["Close"].rolling(window=200).mean()
 
+    stock["VWAP"] = (stock["Volume"] * stock ["Close"]).cumsum() / stock["Volume"].cumsum()
+
     #get closing prices only
     close_prices_df = stock[["Close"]].reset_index()
     #sort by date (others dont work)
@@ -39,20 +42,20 @@ def stockInfo(stockName):
     return stock
 
 
-def sortData(stock):
+def sortData():
     sorted_df = stock.sort_values(by="Close", ascending=False)
      #finding all time high
     max_close = sorted_df["Close"].max()
     
 
-def checkCond(stock):
+def checkCond():
     #check condition for column
     close = stock[["Close"]].reset_index()
     close["Above 230"] = close["Close"] > 230
     true = close[close["Above 230"] == True]
     #print(true.head(50))
 
-def optionsData(stock):
+def optionsData():
     avaExp = stockData.options
 
     if not avaExp:
@@ -64,7 +67,13 @@ def optionsData(stock):
    
 def fundData():
     anEarnings = stockData.income_stmt
-    print(anEarnings)
+    res = list(anEarnings.columns)
+    if "EBITDA" in anEarnings.index:
+        ebData = anEarnings.loc["EBITDA"]
+    print(ebData) 
+    
+    
+
 
 def pData():
     info = stockData.info
@@ -87,36 +96,48 @@ def pData():
             print("Please Provide a Yes or No answer")
     
     
-def plotGraph(stock, stockName):
+def plotGraph():
     #How to Plot the data
-    stock["Close"].plot(title= stockName + " Price")
-    stock["SMA_20"].plot()
-    stock["SMA_50"].plot()
-    stock["SMA_200"].plot()
-    plt.xlabel("Date")
-    plt.ylabel("Price")
-    plt.legend()
-    plt.show()
+    answer = False
+    while answer == False:
+        yGraph = input("Do you want a technical graph of " + stockName.upper() +  " (Yes or No ONLY)")
+        yGraph = yGraph.strip().upper()
+        if yGraph == "YES" or yGraph == "Y":
+            stock["Close"].plot(title= stockName.upper() + " Price")
+            stock["SMA_20"].plot()
+            stock["SMA_50"].plot()
+            stock["SMA_200"].plot()
+            stock["VWAP"].plot()
+            plt.xlabel("Date")
+            plt.ylabel("Price")
+            plt.legend()
+            plt.show()
+            answer = True
+        elif yGraph == "NO" or yGraph == "N":
+            answer = True
+        else:
+            print("Please Provide a Yes or No answer")
+    
 
 
 def main():
     getTicker()
     funcRun = False
     while funcRun == False:
-        if stockCheck(stockData) ==  True:
+        if stockCheck() ==  True:
             print("Not valid ticker please try again")
             getTicker()
         else:
             #wish = input("Would you : ")
             funcRun = True
-            stock = stockInfo(stockName)
-            stockInfo(stockName)
-            sortData(stock)
-            checkCond(stock)
-            optionsData(stock)
+            stock = stockInfo()
+            stockInfo()
+            sortData()
+            checkCond()
+            optionsData()
             pData()
             fundData()
-            plotGraph(stock, stockName)
+            plotGraph()
 
 main()
 
