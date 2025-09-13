@@ -5,6 +5,7 @@ import pandasql as ps
 import pandas as pd
 import matplotlib.pyplot as plt
 import backtrader as bt
+from datetime import date
 
 stockName = ""
 stockData = ""
@@ -23,7 +24,16 @@ def stockCheck():
 #downloading YF data
 def stockInfo():
     global stock
-    stock = yf.download(stockName, start="2022-01-01", end="2025-09-08", interval="1d", auto_adjust=True)
+    inF = False
+    while (inF == False):
+        startD = input("From what date would you like to see the data from? : ")
+        if len(startD) == 10 and startD[4] == '-' and startD[7] == '-':
+            inF = True
+        else:
+            print("Please enter date in YYYY-MM-DD format.")
+        
+    todayD = str(date.today())
+    stock = yf.download(stockName, start=startD, end=todayD, interval="1d", auto_adjust=True)
     if isinstance(stock.columns, pd.MultiIndex):
         stock.columns = stock.columns.get_level_values(0)
    
@@ -67,10 +77,25 @@ def optionsData():
    
 def fundData():
     anEarnings = stockData.income_stmt
-    res = list(anEarnings.columns)
+    ebGrowth = False
+    gpGrowth = False
+    epsGrowth = False
+    value = 0
+
     if "EBITDA" in anEarnings.index:
         ebData = anEarnings.loc["EBITDA"]
-    print(ebData) 
+        eb = ebData.iloc[:, 1]
+        value = 0
+        for u in eb:
+            if (eb[u]) > (eb[u + 1]):
+                value = value + 1
+            elif (eb[u]) < (eb[u + 1]):
+                value = 1
+    print(ebData)
+    if "Gross Profit" in anEarnings.index:
+        gpData = anEarnings.loc["Gross Profit"]
+    if "Basic EPS" in anEarnings.index:
+        epsData = anEarnings.loc["Basic EPS"]
     
     
 
@@ -81,13 +106,15 @@ def pData():
    
     answer = False
     while answer == False:
-        yData = input("Do you want more basic information on the ticker provided? (Yes or No ONLY)")
+        yData = input("Do you want more information on the ticker provided? (Yes or No ONLY)")
         yData = yData.strip().upper()
         if yData == "YES" or yData == "Y":
+            print("----------- Company Information ----------- ")
             print("Company Name: " + str(info.get("longName")))
             print("Sector: " + str(info.get("sector")))
             print("Industry: " + str(info.get("industry")))
             print("Market Cap: " + str(info.get("marketCap")))
+            print("------------------------------------------- ")
             answer = True
         elif yData == "NO" or yData == "N":
             print("Great!")
@@ -131,12 +158,11 @@ def main():
             #wish = input("Would you : ")
             funcRun = True
             stock = stockInfo()
-            stockInfo()
             sortData()
             checkCond()
             optionsData()
             pData()
-            fundData()
+           
             plotGraph()
 
 main()
