@@ -82,39 +82,30 @@ def fundData():
     epsGrowth = False
     value = 0
 
+
+
     if "EBITDA" in anEarnings.index:
         ebData = anEarnings.loc["EBITDA"]
         eb = ebData.iloc[:, 1]
-        value = 0
-        for u in eb:
-            if (eb[u]) > (eb[u + 1]):
-                value = value + 1
-            elif (eb[u]) < (eb[u + 1]):
-                value = 1
     print(ebData)
     if "Gross Profit" in anEarnings.index:
         gpData = anEarnings.loc["Gross Profit"]
+        gp = gpData.iloc[:, 1]
     if "Basic EPS" in anEarnings.index:
         epsData = anEarnings.loc["Basic EPS"]
+        eps = epsData.iloc[:, 1]
     
-    
+    for u in eb:
+        if (eb[u]) > (eb[u + 1]):
+            value = value + 1
+        elif (eb[u]) < (eb[u + 1]):
+            value = 1
 
-
-def pData():
-    info = stockData.info
-
-   
     answer = False
     while answer == False:
-        yData = input("Do you want more information on the ticker provided? (Yes or No ONLY)")
+        yData = input("Do you want the financial information on the ticker provided? (Yes or No ONLY)")
         yData = yData.strip().upper()
         if yData == "YES" or yData == "Y":
-            print("----------- Company Information ----------- ")
-            print("Company Name: " + str(info.get("longName")))
-            print("Sector: " + str(info.get("sector")))
-            print("Industry: " + str(info.get("industry")))
-            print("Market Cap: " + str(info.get("marketCap")))
-            print("------------------------------------------- ")
             answer = True
         elif yData == "NO" or yData == "N":
             print("Great!")
@@ -122,6 +113,20 @@ def pData():
         else:
             print("Please Provide a Yes or No answer")
     
+    
+    
+    
+
+
+def pData():
+    info = stockData.info
+    print("----------- Company Information ----------- ")
+    print("Company Name: " + str(info.get("longName")))
+    print("Sector: " + str(info.get("sector")))
+    print("Industry: " + str(info.get("industry")))
+    print("Market Cap: " + str(info.get("marketCap")))
+    print("------------------------------------------- ")
+        
     
 def plotGraph():
     #How to Plot the data
@@ -162,7 +167,10 @@ def main():
             checkCond()
             optionsData()
             pData()
-           
+            anEarnings = stockData.income_stmt
+            ebData = anEarnings.loc["EBITDA"]
+            eb = ebData.iloc[:, 1]
+            print(ebData)
             plotGraph()
 
 main()
