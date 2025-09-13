@@ -25,12 +25,23 @@ def stockCheck():
 def stockInfo():
     global stock
     inF = False
-    while (inF == False):
-        startD = input("From what date would you like to see the data from? : ")
-        if len(startD) == 10 and startD[4] == '-' and startD[7] == '-':
-            inF = True
-        else:
-            print("Please enter date in YYYY-MM-DD format.")
+    anF = False
+    while (anF == False):
+        isStartD = input("Is there a specific date you would like to see the data from? (Yes or No ONLY): ")
+        isStartD = isStartD.strip().upper()
+        if isStartD == "YES" or isStartD == "Y":
+            anF = True
+            while(inF == False):
+                startD = input("From what date would you like to see the data from? : ")
+                if len(startD) == 10 and startD[4] == '-' and startD[7] == '-':
+                    inF = True
+                else:
+                    print("Please enter date in YYYY-MM-DD format.")
+        elif isStartD == "NO" or isStartD == "N":
+            print("Great!")
+            startD = "2020-01-01"
+            anF = True
+
         
     todayD = str(date.today())
     stock = yf.download(stockName, start=startD, end=todayD, interval="1d", auto_adjust=True)
@@ -81,25 +92,24 @@ def fundData():
     gpGrowth = False
     epsGrowth = False
     value = 0
-
-
+    ebD = []
 
     if "EBITDA" in anEarnings.index:
         ebData = anEarnings.loc["EBITDA"]
-        eb = ebData.iloc[:, 1]
-    print(ebData)
+        for i in ebData:
+            ebD[i] = ebData.iloc[i]
+            if i > 5:
+                break
+
     if "Gross Profit" in anEarnings.index:
         gpData = anEarnings.loc["Gross Profit"]
         gp = gpData.iloc[:, 1]
+
     if "Basic EPS" in anEarnings.index:
         epsData = anEarnings.loc["Basic EPS"]
         eps = epsData.iloc[:, 1]
     
-    for u in eb:
-        if (eb[u]) > (eb[u + 1]):
-            value = value + 1
-        elif (eb[u]) < (eb[u + 1]):
-            value = 1
+
 
     answer = False
     while answer == False:
@@ -167,10 +177,8 @@ def main():
             checkCond()
             optionsData()
             pData()
-            anEarnings = stockData.income_stmt
-            ebData = anEarnings.loc["EBITDA"]
-            eb = ebData.iloc[:, 1]
-            print(ebData)
+            anEarnings = stockData.balance_sheet
+            print(anEarnings)
             plotGraph()
 
 main()
