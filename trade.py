@@ -1,5 +1,6 @@
 from pandas._libs.tslibs import Tick
 from pandas.core.indexes.base import F
+import plotly.graph_objects as go
 import yfinance as yf
 import pandasql as ps
 import pandas as pd
@@ -11,10 +12,8 @@ stockName = ""
 stockData = ""
 def getTicker():
     global stockName 
-    stockName = input("Enter the ticker you would like to analyze: ")
     global stockData
     stockData = stockData = yf.Ticker(stockName)
-    stockCheck()
 
 
 def stockCheck():
@@ -23,7 +22,6 @@ def stockCheck():
 
 #downloading YF data
 def stockInfo():
-    global stock
     inF = False
     anF = False
     while (anF == False):
@@ -128,16 +126,101 @@ def fundData():
     
 
 
-def pData():
-    info = stockData.info
-    print("----------- Company Information ----------- ")
-    print("Company Name: " + str(info.get("longName")))
-    print("Sector: " + str(info.get("sector")))
-    print("Industry: " + str(info.get("industry")))
-    print("Market Cap: " + str(info.get("marketCap")))
-    print("------------------------------------------- ")
-        
+def pData(stockTicker):
+    stockIn = yf.Ticker(stockTicker)
+    info = stockIn.info
+    tickerData = {
+        "Company Name": str(info.get("longName")),
+        "Sector": str(info.get("sector")),
+        "Industry": str(info.get("industry")),
+        "Market Cap": str(info.get("marketCap"))
+    }
     
+    return tickerData
+        
+def plotGraphW(ticker):
+    #How to Plot the data with plotly
+    todayD = str(date.today())
+    stock = yf.download(ticker, start="2020-01-01", end=todayD, interval="1d", auto_adjust=True)
+    
+    if stock.empty:
+        print(f"No data found for {ticker}")
+        return None
+        
+    if isinstance(stock.columns, pd.MultiIndex):
+        stock.columns = stock.columns.get_level_values(0)
+
+    # Calculate indicators
+    stock["SMA_20"] = stock["Close"].rolling(window=20).mean()
+    stock["SMA_50"] = stock["Close"].rolling(window=50).mean()
+    stock["SMA_200"] = stock["Close"].rolling(window=200).mean()
+    
+    # Fix VWAP calculation - use proper VWAP formula
+    stock["VWAP"] = ((stock["High"] + stock["Low"] + stock["Close"]) / 3 * stock["Volume"]).cumsum() / stock["Volume"].cumsum()
+    fig = go.Figure()
+    
+    # Always plot Close price
+    fig.add_trace(go.Scatter(
+        x=stock.index.tolist(), 
+        y=stock['Close'].tolist(), 
+        mode='lines', 
+        name='Close Price', 
+        line=dict(color='blue', width=2)
+    ))
+    
+    # Plot SMAs with different colors - filter out NaN values
+    if stock['SMA_20'].notna().any():
+        sma20_data = stock['SMA_20'].dropna()
+        fig.add_trace(go.Scatter(
+            x=sma20_data.index.tolist(), 
+            y=sma20_data.tolist(), 
+            mode='lines', 
+            name='SMA 20', 
+            line=dict(color='orange', width=1)
+        ))
+    
+    if stock['SMA_50'].notna().any():
+        sma50_data = stock['SMA_50'].dropna()
+        fig.add_trace(go.Scatter(
+            x=sma50_data.index.tolist(), 
+            y=sma50_data.tolist(), 
+            mode='lines', 
+            name='SMA 50', 
+            line=dict(color='red', width=1)
+        ))
+    
+    if stock['SMA_200'].notna().any():
+        sma200_data = stock['SMA_200'].dropna()
+        fig.add_trace(go.Scatter(
+            x=sma200_data.index.tolist(), 
+            y=sma200_data.tolist(), 
+            mode='lines', 
+            name='SMA 200', 
+            line=dict(color='purple', width=1)
+        ))
+    
+    # Plot VWAP
+    if stock['VWAP'].notna().any():
+        vwap_data = stock['VWAP'].dropna()
+        fig.add_trace(go.Scatter(
+            x=vwap_data.index.tolist(), 
+            y=vwap_data.tolist(), 
+            mode='lines', 
+            name='VWAP', 
+            line=dict(color='green', width=1, dash='dash')
+        ))
+
+    fig.update_layout(
+        title=f'{ticker.upper()} Price Chart',
+        xaxis_title='Date',
+        yaxis_title='Price',
+        legend_title='Legend',
+        width=1000,
+        height=600
+    )
+
+    return fig
+
 def plotGraph():
     #How to Plot the data
     answer = False
@@ -163,7 +246,6 @@ def plotGraph():
 
 
 def main():
-    getTicker()
     funcRun = False
     while funcRun == False:
         if stockCheck() ==  True:
@@ -181,5 +263,5 @@ def main():
             print(anEarnings)
             plotGraph()
 
-main()
+#main()
 

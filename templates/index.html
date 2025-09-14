@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend App</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="sample">
+    <h1>Stock Analyzer</h1>
+    <p id="p1">Enter the ticker you would like to analyze:</p>
+    <input type="text" id="myTicker" placeholder="Enter ticker here">
+    <button onclick="enterTicker()">Submit</button>
+    <p id="companyName"></p>
+    <p id="sector"></p>
+    <p id="industry"></p>
+    <p id="marketCap"></p>
+    </div>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <div id="plot" style="width:100%; height:500px;">
+    <button onclick="createPlot()">Show Graph</button>
+    </div>
+<script src = '/static/main.js'> </script>
+
+</body>
+</html>
