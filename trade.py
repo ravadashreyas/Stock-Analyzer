@@ -85,6 +85,9 @@ def optionsData():
     opt_chain = stockData.option_chain(first_expiry)
     calls = opt_chain.calls
     puts = opt_chain.puts
+    return calls, puts
+    print(calls.head(100))
+    print(puts.head(50))
 
 stockData = stockData = yf.Ticker('aapl')
 optionsData()
@@ -127,6 +130,7 @@ def pData(stockTicker):
     info = stockIn.info
     tickerData = {
         "Company Name": str(info.get("longName")),
+        "Current Price": str(info.get("currentPrice")),
         "Sector": str(info.get("sector")),
         "Industry": str(info.get("industry")),
         "Market Cap": str(info.get("marketCap"))
@@ -141,17 +145,17 @@ def plotGraphW(ticker, timeFrame):
     if timeFrame == "ALL":
         first_date = stock_data.index[0]
         todayD = str(date.today())
-        stock = yf.download(ticker, start=first_date, end=todayD, interval="1mo", auto_adjust=True)
+        stock = yf.download(ticker, start=first_date, end=todayD, interval="1d", auto_adjust=True)
     elif timeFrame == "5Y":
         five_years = pd.Timestamp.today() - pd.DateOffset(years=5)
         Y5 = five_years.date()
         todayD = str(date.today())
-        stock = yf.download(ticker, start=Y5, end=todayD, interval="1wk", auto_adjust=True)
+        stock = yf.download(ticker, start=Y5, end=todayD, interval="1d", auto_adjust=True)
     elif timeFrame == "1Y":
         one_year = pd.Timestamp.today() - pd.DateOffset(years=1)
         Y1 = one_year.date()
         todayD = str(date.today())
-        stock = yf.download(ticker, start=Y1, end=todayD, interval="1d", auto_adjust=True)
+        stock = yf.download(ticker, start=Y1, end=todayD, interval="4h", auto_adjust=True)
     elif timeFrame == "YTD":
         yearTD = pd.Timestamp.today() - pd.DateOffset(months=pd.Timestamp.today().month - 1, days=pd.Timestamp.today().day - 1)
         YTD = yearTD.date()
@@ -161,17 +165,17 @@ def plotGraphW(ticker, timeFrame):
         six_months = pd.Timestamp.today() - pd.DateOffset(months=6)
         M6 = six_months.date()
         todayD = str(date.today())
-        stock = yf.download(ticker, start=M6, end=todayD, interval="1h", auto_adjust=True)
+        stock = yf.download(ticker, start=M6, end=todayD, interval="30m", auto_adjust=True)
     elif timeFrame == "3M":
         three_months = pd.Timestamp.today() - pd.DateOffset(months=3)
         M3 = three_months.date()
         todayD = str(date.today())
-        stock = yf.download(ticker, start=M3, end=todayD, interval="1h", auto_adjust=True)
+        stock = yf.download(ticker, start=M3, end=todayD, interval="30m", auto_adjust=True)
     elif timeFrame == "1M":
         one_month = pd.Timestamp.today() - pd.DateOffset(months=1)
         M1 = one_month.date()
         todayD = str(date.today())
-        stock = yf.download(ticker, start=M1, end=todayD, interval="30m", auto_adjust=True)
+        stock = yf.download(ticker, start=M1, end=todayD, interval="15m", auto_adjust=True)
     elif timeFrame == "5D":
         one_week = pd.Timestamp.today() - pd.DateOffset(weeks=1)
         W1 = one_week.date()
@@ -190,22 +194,22 @@ def plotGraphW(ticker, timeFrame):
             D1 = sunDay.date()
             todayD = one_day = (pd.Timestamp.today()) - pd.DateOffset(days=2)
             stock = yf.download(ticker, start=D1, end=todayD, interval="1m", auto_adjust=True)
-        elif day == "Mon" and x.hour < 14:
+        elif day == "Mon" and x.hour < 15:
             one_day = (pd.Timestamp.today()) - pd.DateOffset(days=4)
             D1 = one_day.date()
             todayD = (pd.Timestamp.today()) - pd.DateOffset(days=3)
             stock = yf.download(ticker, start=one_day, end=todayD, interval="1m", auto_adjust=True)
-        elif day == "Mon" and x.hour > 14:
+        elif day == "Mon" and x.hour > 15:
             one_day = (pd.Timestamp.today()) - pd.DateOffset(days=4)
             D1 = one_day.date()
             todayD = (pd.Timestamp.today()) - pd.DateOffset(days=3)
             todayDa = str(date.today())
-            stock = yf.download(ticker, start=todayDa, end=todayDa, interval="1m", auto_adjust=True)
+            stock = yf.download(ticker,period='1d',interval='1m')
         else:
             one_day = pd.Timestamp.today() - pd.DateOffset(days=1)
             D1 = one_day.date()
             todayD = str(date.today())
-            stock = yf.download(ticker, start=D1, end=todayD, interval="1m", auto_adjust=True)
+            stock = yf.download(ticker,period='1d',interval='1m')
 
     if stock.empty:
         print(f"No data found for {ticker}")
@@ -275,7 +279,7 @@ def plotGraphW(ticker, timeFrame):
         ))
 
     fig.update_layout(
-        title=f'{ticker.upper()} Price Chart',
+
         xaxis_title='Date',
         yaxis_title='Price',
         legend_title='Legend',
