@@ -165,12 +165,12 @@ def plotGraphW(ticker, timeFrame):
         six_months = pd.Timestamp.today() - pd.DateOffset(months=6)
         M6 = six_months.date()
         todayD = str(date.today())
-        stock = yf.download(ticker, start=M6, end=todayD, interval="30m", auto_adjust=True)
+        stock = yf.download(ticker, start=M6, end=todayD, interval="1h", auto_adjust=True)
     elif timeFrame == "3M":
         three_months = pd.Timestamp.today() - pd.DateOffset(months=3)
         M3 = three_months.date()
         todayD = str(date.today())
-        stock = yf.download(ticker, start=M3, end=todayD, interval="30m", auto_adjust=True)
+        stock = yf.download(ticker, start=M3, end=todayD, interval="1h", auto_adjust=True)
     elif timeFrame == "1M":
         one_month = pd.Timestamp.today() - pd.DateOffset(months=1)
         M1 = one_month.date()
