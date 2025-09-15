@@ -19,21 +19,28 @@
                 })
                 .catch(error => console.error('Error:', error));
         }
- function createPlot(){
+ function createPlot(timeFrame){
+    const stockBut = document.querySelector('.TimeFrame');
+    stockBut.classList.remove('hidden');
     const ticker = document.getElementById("myTicker").value;
-    
+    const stockData = {
+        'ticker': ticker, 
+        'timeFrame': timeFrame
+    };
     fetch('/api/plot', {
         method: 'POST', 
         headers: {
              'Content-Type': 'application/json' 
         },
-        body: JSON.stringify(ticker)
+        body: JSON.stringify(stockData)
         })
         .then(response => response.json())
         .then(data => {
             console.log("Parsed plot data from server:", data); 
             const plotDiv = document.getElementById('plot');
+            if (data.data && data.layout) {
             Plotly.newPlot(plotDiv, data.data, data.layout);
+            }
         })
         .catch(error => console.error('Error:', error));
  }

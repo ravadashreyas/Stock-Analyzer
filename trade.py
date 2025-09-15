@@ -7,6 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import backtrader as bt
 from datetime import date
+import datetime
 
 stockName = ""
 stockData = ""
@@ -76,6 +77,7 @@ def checkCond():
 
 def optionsData():
     avaExp = stockData.options
+    print(avaExp)
 
     if not avaExp:
         print(f"No options data available for {stockName}.")
@@ -83,6 +85,9 @@ def optionsData():
     opt_chain = stockData.option_chain(first_expiry)
     calls = opt_chain.calls
     puts = opt_chain.puts
+
+stockData = stockData = yf.Ticker('aapl')
+optionsData()
    
 def fundData():
     anEarnings = stockData.income_stmt
@@ -91,6 +96,8 @@ def fundData():
     epsGrowth = False
     value = 0
     ebD = []
+    gpD = []
+    eps = []
 
     if "EBITDA" in anEarnings.index:
         ebData = anEarnings.loc["EBITDA"]
@@ -101,30 +108,19 @@ def fundData():
 
     if "Gross Profit" in anEarnings.index:
         gpData = anEarnings.loc["Gross Profit"]
-        gp = gpData.iloc[:, 1]
+        for i in gpData:
+            gpD[i] = gpData.iloc[i]
+            if i > 5:
+                break
 
     if "Basic EPS" in anEarnings.index:
         epsData = anEarnings.loc["Basic EPS"]
-        eps = epsData.iloc[:, 1]
-    
+        for i in gpData:
+            eps[i] = epsData.iloc[i]
+            if i > 5:
+                break
 
-
-    answer = False
-    while answer == False:
-        yData = input("Do you want the financial information on the ticker provided? (Yes or No ONLY)")
-        yData = yData.strip().upper()
-        if yData == "YES" or yData == "Y":
-            answer = True
-        elif yData == "NO" or yData == "N":
-            print("Great!")
-            answer = True
-        else:
-            print("Please Provide a Yes or No answer")
     
-    
-    
-    
-
 
 def pData(stockTicker):
     stockIn = yf.Ticker(stockTicker)
@@ -138,11 +134,79 @@ def pData(stockTicker):
     
     return tickerData
         
-def plotGraphW(ticker):
+def plotGraphW(ticker, timeFrame):
     #How to Plot the data with plotly
-    todayD = str(date.today())
-    stock = yf.download(ticker, start="2020-01-01", end=todayD, interval="1d", auto_adjust=True)
-    
+    stock_data = yf.download(ticker, period='max')
+    print(timeFrame)
+    if timeFrame == "ALL":
+        first_date = stock_data.index[0]
+        todayD = str(date.today())
+        stock = yf.download(ticker, start=first_date, end=todayD, interval="1mo", auto_adjust=True)
+    elif timeFrame == "5Y":
+        five_years = pd.Timestamp.today() - pd.DateOffset(years=5)
+        Y5 = five_years.date()
+        todayD = str(date.today())
+        stock = yf.download(ticker, start=Y5, end=todayD, interval="1wk", auto_adjust=True)
+    elif timeFrame == "1Y":
+        one_year = pd.Timestamp.today() - pd.DateOffset(years=1)
+        Y1 = one_year.date()
+        todayD = str(date.today())
+        stock = yf.download(ticker, start=Y1, end=todayD, interval="1d", auto_adjust=True)
+    elif timeFrame == "YTD":
+        yearTD = pd.Timestamp.today() - pd.DateOffset(months=pd.Timestamp.today().month - 1, days=pd.Timestamp.today().day - 1)
+        YTD = yearTD.date()
+        todayD = str(date.today())
+        stock = yf.download(ticker, start=YTD, end=todayD, interval="1h", auto_adjust=True)
+    elif timeFrame == "6M":
+        six_months = pd.Timestamp.today() - pd.DateOffset(months=6)
+        M6 = six_months.date()
+        todayD = str(date.today())
+        stock = yf.download(ticker, start=M6, end=todayD, interval="1h", auto_adjust=True)
+    elif timeFrame == "3M":
+        three_months = pd.Timestamp.today() - pd.DateOffset(months=3)
+        M3 = three_months.date()
+        todayD = str(date.today())
+        stock = yf.download(ticker, start=M3, end=todayD, interval="1h", auto_adjust=True)
+    elif timeFrame == "1M":
+        one_month = pd.Timestamp.today() - pd.DateOffset(months=1)
+        M1 = one_month.date()
+        todayD = str(date.today())
+        stock = yf.download(ticker, start=M1, end=todayD, interval="30m", auto_adjust=True)
+    elif timeFrame == "5D":
+        one_week = pd.Timestamp.today() - pd.DateOffset(weeks=1)
+        W1 = one_week.date()
+        todayD = str(date.today())
+        stock = yf.download(ticker, start=W1, end=todayD, interval="5m", auto_adjust=True)
+    elif timeFrame == "1D":
+        x = datetime.datetime.now()
+        day = x.strftime("%a")
+        if day == "Sat":
+            satDay = pd.Timestamp.today() - pd.DateOffset(days=2)
+            D1 = satDay.date()
+            todayD = one_day = (pd.Timestamp.today()) - pd.DateOffset(days=1)
+            stock = yf.download(ticker, start=D1, end=todayD, interval="1m", auto_adjust=True)
+        elif day == "Sun":
+            sunDay =( pd.Timestamp.today()) - pd.DateOffset(days=3)
+            D1 = sunDay.date()
+            todayD = one_day = (pd.Timestamp.today()) - pd.DateOffset(days=2)
+            stock = yf.download(ticker, start=D1, end=todayD, interval="1m", auto_adjust=True)
+        elif day == "Mon" and x.hour < 14:
+            one_day = (pd.Timestamp.today()) - pd.DateOffset(days=4)
+            D1 = one_day.date()
+            todayD = (pd.Timestamp.today()) - pd.DateOffset(days=3)
+            stock = yf.download(ticker, start=one_day, end=todayD, interval="1m", auto_adjust=True)
+        elif day == "Mon" and x.hour > 14:
+            one_day = (pd.Timestamp.today()) - pd.DateOffset(days=4)
+            D1 = one_day.date()
+            todayD = (pd.Timestamp.today()) - pd.DateOffset(days=3)
+            todayDa = str(date.today())
+            stock = yf.download(ticker, start=todayDa, end=todayDa, interval="1m", auto_adjust=True)
+        else:
+            one_day = pd.Timestamp.today() - pd.DateOffset(days=1)
+            D1 = one_day.date()
+            todayD = str(date.today())
+            stock = yf.download(ticker, start=D1, end=todayD, interval="1m", auto_adjust=True)
+
     if stock.empty:
         print(f"No data found for {ticker}")
         return None
@@ -221,8 +285,10 @@ def plotGraphW(ticker):
 
     return fig
 
-def plotGraph():
+def plotGraph(ticker):
     #How to Plot the data
+    todayD = str(date.today())
+    stock = yf.download(ticker, start="2020-01-01", end=todayD, interval="1d", auto_adjust=True)
     answer = False
     while answer == False:
         yGraph = input("Do you want a technical graph of " + stockName.upper() +  " (Yes or No ONLY)")

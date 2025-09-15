@@ -9,15 +9,18 @@ def get_message():
 
 @app.route('/api/plot', methods=['POST'])
 def get_plot():
-    ticker = request.get_json()
-    fig = plotGraphW(ticker)
+    data = request.get_json()
+    ticker = data.get('ticker')
+    timeFrame = data.get('timeFrame')
+    fig = plotGraphW(ticker, timeFrame)
     if fig is None:
         return jsonify({"error": "No data found for ticker"})
     graphJSON = fig.to_json()
-    return graphJSON  # Don't use jsonify() - fig.to_json() already returns JSON string
+    return graphJSON  
+
 
 @app.route('/')
 def serve_frontend():
     return render_template('index.html')
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

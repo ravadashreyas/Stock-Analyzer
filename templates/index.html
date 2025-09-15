@@ -17,11 +17,28 @@
     <p id="industry"></p>
     <p id="marketCap"></p>
     </div>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <div id="plot" style="width:100%; height:500px;">
-    <button onclick="createPlot()">Show Graph</button>
-    </div>
-<script src = '/static/main.js'> </script>
+    
+    <div class="ShowGraph">
+    <button onclick="createPlot('ALL')">Show Graph</button>
+    <div>
 
+    <div class="TimeFrame hidden">
+    <button onclick="createPlot('ALL')">ALL</button> 
+    <button onclick="createPlot('5Y')">5Y</button> 
+    <button onclick="createPlot('1Y')">1Y</button>
+    <button onclick="createPlot('YTD')">YTD</button> 
+    <button onclick="createPlot('6M')">6M</button> 
+    <button onclick="createPlot('3M')">3M</button>
+    <button onclick="createPlot('1M')">1M</button>
+    <button onclick="createPlot('5D')">5D</button>
+    <button onclick="createPlot('1D')">1D</button>
+    </div>
+
+    <div id="plot" style="width:100%; height:500px;">
+    </div>
+
+   
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src = '/static/main.js', defer> </script>
 </body>
 </html>
