@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory, render_template
-from trade import getTicker, stockCheck, stockInfo, sortData, checkCond, optionsData, pData, plotGraphW, fundData
+from trade import stockCheck, stockInfo, sortData, checkCond, optionsData, pData, plotGraphW, fundDataAnnual, fundDataQuart
 import json
 
 app = Flask(__name__, static_folder='static')
@@ -19,15 +19,41 @@ def get_plot():
     graphJSON = json.loads(fig.to_json())
     return jsonify(graphJSON) 
 
+@app.route('/api/options', methods=['POST'])
+def get_options():
+    data = request.get_json()
+    ticker = data
+    calls, puts, callFig, putFig = optionsData(ticker)
+    graphCall = json.loads(callFig.to_json())
+    graphPut = json.loads(putFig.to_json())
+    if calls is None or puts is None:
+        print("No data found for ticker")
+        return jsonify({"error": "No data found for ticker"})
+    return jsonify({"calls": calls, "puts": puts, "callGraph": graphCall, "putGraph": graphPut})
+
+@app.route('/api/earnings', methods=['POST'])
+def get_earnings():
+    data = request.get_json()
+    ticker = data
+    anEarnings = fundDataAnnual(ticker)
+    quEarnings = fundDataQuart(ticker)
+    if anEarnings is None and quEarnings is None:
+        print("No data found for ticker")
+        return jsonify({"error": "No data found for ticker"})
+    return jsonify({"anEarnings": anEarnings, "quEarnings": quEarnings})
 
 
 @app.route('/')
 def serve_frontend():
     return render_template('index.html')
 
-@app.route('/options.html')
-def serve_options():
-    return render_template('options.html')
+@app.route('/puts.html')
+def serve_puts():
+    return render_template('puts.html')
+
+@app.route('/calls.html')
+def serve_calls():
+    return render_template('calls.html')
 
 @app.route('/earnings.html')
 def serve_earnings():

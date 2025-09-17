@@ -26,6 +26,7 @@
                         marketCap: data.message["Market Cap"]
                     };
                     localStorage.setItem('companyData', JSON.stringify(companyData));
+                    localStorage.setItem('ticker', JSON.stringify(ticker));
                 })
                 .catch(error => console.error('Error:', error));
 }
@@ -74,11 +75,21 @@ window.onload = function() {
     if (companyData && plotData) {
         const pData = JSON.parse(plotData);
         const cData = JSON.parse(companyData);
-        console.log("Retrieved stock data for:", cData.companyName);
-        console.log("Retrieved ticker:", pData.ticker);
         document.getElementById('myTicker').value = pData.ticker;
         createPlot('ALL');
         enterTicker();
     }
 };
 
+function clearLocalStorageIfExpired() {
+    const lastClearTime = localStorage.getItem(timestampKey);
+    const currentTime = new Date().getTime();
+    if (lastClearTime && (currentTime - lastClearTime > intervalInMilliseconds)) {
+        localStorage.clear();
+        console.log('localStorage has been cleared due to expiration.');
+        localStorage.setItem(timestampKey, currentTime);
+    } else if (!lastClearTime) {
+        localStorage.setItem(timestampKey, currentTime);
+        console.log('Timestamp set for localStorage expiration.');
+    }
+}

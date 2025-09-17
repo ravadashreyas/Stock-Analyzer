@@ -6,16 +6,12 @@ import pandasql as ps
 import pandas as pd
 import matplotlib.pyplot as plt
 import backtrader as bt
+import numpy as np
 from datetime import date
 import datetime
 
 stockName = ""
 stockData = ""
-def getTicker():
-    global stockName 
-    global stockData
-    stockData = stockData = yf.Ticker(stockName)
-
 
 def stockCheck():
     stockHis = stockData.history(period ="5d")
@@ -75,9 +71,9 @@ def checkCond():
     true = close[close["Above 230"] == True]
     #print(true.head(50))
 
-def optionsData():
+def optionsData(ticker):
+    stockData = yf.Ticker(ticker)
     avaExp = stockData.options
-    print(avaExp)
 
     if not avaExp:
         print(f"No options data available for {stockName}.")
@@ -85,45 +81,84 @@ def optionsData():
     opt_chain = stockData.option_chain(first_expiry)
     calls = opt_chain.calls
     puts = opt_chain.puts
-    return calls, puts
-    print(calls.head(100))
-    print(puts.head(50))
 
-stockData = stockData = yf.Ticker('aapl')
-optionsData()
-   
-def fundData():
-    anEarnings = stockData.income_stmt
-    ebGrowth = False
-    gpGrowth = False
-    epsGrowth = False
-    value = 0
-    ebD = []
-    gpD = []
-    eps = []
-
-    if "EBITDA" in anEarnings.index:
-        ebData = anEarnings.loc["EBITDA"]
-        for i in ebData:
-            ebD[i] = ebData.iloc[i]
-            if i > 5:
-                break
-
-    if "Gross Profit" in anEarnings.index:
-        gpData = anEarnings.loc["Gross Profit"]
-        for i in gpData:
-            gpD[i] = gpData.iloc[i]
-            if i > 5:
-                break
-
-    if "Basic EPS" in anEarnings.index:
-        epsData = anEarnings.loc["Basic EPS"]
-        for i in gpData:
-            eps[i] = epsData.iloc[i]
-            if i > 5:
-                break
-
+    if calls.empty and puts.empty:
+            print(f"Option chain for {ticker} is empty.")
+            return None, None
+    if calls.empty:
+            print(f"Calls data is empty for {ticker}.")
+            return None, None
+    if puts.empty:
+            print(f"Puts data is empty for {ticker}.")
+            return None, None
     
+    calls = calls.replace({np.nan: None})
+    puts = puts.replace({np.nan: None})
+    callsDict = calls.to_dict(orient='records')
+    putsDict = puts.to_dict(orient='records')
+    callGraph = "callGraph"
+    putGraph = "putGraph"
+    callFig = plotBarGraph(callsDict, ticker, callGraph)
+    putFig = plotBarGraph(putsDict, ticker, putGraph)
+    return callsDict, putsDict, callFig, putFig
+   
+
+
+def fundDataQuart(ticker):
+    stock = yf.Ticker(ticker)
+    anEarnings = stock.quarterly_income_stmt
+
+    if anEarnings is None or anEarnings.empty:
+        print(f"No income statement data found for {ticker}.")
+        return None
+
+    anEarnings = anEarnings.transpose()
+    anEarnings.dropna(how='all', inplace=True)
+    anEarnings.reset_index(inplace=True)
+    anEarnings = anEarnings.replace({np.nan: None})
+    anEarnings = anEarnings.rename(columns={
+        'index': 'date', 
+        'Total Revenue': 'totalRevenue',
+        'Gross Profit': 'grossProfit',
+        'Normalized EBITDA': 'normalEBITDA',
+        'Net Income': 'netIncome',
+        'Diluted EPS': 'dilutedEPS',
+        'Total Expenses': 'totalExpenses',
+        'Operating Income': 'operatingIncome'
+    })
+   
+    anEarnings['date'] = anEarnings['date'].dt.strftime('%Y-%m-%d')
+    anEarningsJSON = anEarnings.to_dict(orient='records')
+    
+    return anEarningsJSON
+
+def fundDataAnnual(ticker):
+    stock = yf.Ticker(ticker)
+    anEarnings = stock.income_stmt
+
+    if anEarnings is None or anEarnings.empty:
+        print(f"No income statement data found for {ticker}.")
+        return None
+
+    anEarnings = anEarnings.transpose()
+    anEarnings.dropna(how='all', inplace=True)
+    anEarnings.reset_index(inplace=True)
+    anEarnings = anEarnings.replace({np.nan: None})
+    anEarnings = anEarnings.rename(columns={
+        'index': 'date', 
+        'Total Revenue': 'totalRevenue',
+        'Gross Profit': 'grossProfit',
+        'Normalized EBITDA': 'normalEBITDA',
+        'Net Income': 'netIncome',
+        'Diluted EPS': 'dilutedEPS',
+        'Total Expenses': 'totalExpenses',
+        'Operating Income': 'operatingIncome'
+    })
+   
+    anEarnings['date'] = anEarnings['date'].dt.strftime('%Y-%m-%d')
+    anEarningsJSON = anEarnings.to_dict(orient='records')
+    
+    return anEarningsJSON
 
 def pData(stockTicker):
     stockIn = yf.Ticker(stockTicker)
@@ -137,11 +172,48 @@ def pData(stockTicker):
     }
     
     return tickerData
-        
+
+def plotBarGraph(options, ticker, graphType):
+    ticker = ticker
+    current_price = yf.Ticker(ticker).info.get("currentPrice")
+    min_strike = current_price * 0.8
+    max_strike = current_price * 1.2
+    stockOptions = options
+    filteredOptions = []
+    for i in options: 
+        if i['strike'] >= min_strike and i['strike'] <= max_strike:
+            filteredOptions.append(i)
+    
+    if not filteredOptions:
+        print(f"No options data found in the strike range {min_strike}-{max_strike}")
+        return
+    
+    color = ''
+    if graphType == "putGraph":
+       color = 'red'
+    elif graphType == "callGraph":
+        color = 'green'
+       
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=[i['volume'] for i in filteredOptions],
+        y=[i['strike'] for i in filteredOptions],
+        name='Options Data',
+        marker_color=color,
+        orientation='h'
+    ))
+    fig.update_layout(
+
+        xaxis_title='Volume',
+        yaxis_title='Strike Price',
+        width=700,
+        height=400
+    )
+    return fig
+
 def plotGraphW(ticker, timeFrame):
     #How to Plot the data with plotly
     stock_data = yf.download(ticker, period='max')
-    print(timeFrame)
     if timeFrame == "ALL":
         first_date = stock_data.index[0]
         todayD = str(date.today())
@@ -223,7 +295,6 @@ def plotGraphW(ticker, timeFrame):
     stock["SMA_50"] = stock["Close"].rolling(window=50).mean()
     stock["SMA_200"] = stock["Close"].rolling(window=200).mean()
     
-    # Fix VWAP calculation - use proper VWAP formula
     stock["VWAP"] = ((stock["High"] + stock["Low"] + stock["Close"]) / 3 * stock["Volume"]).cumsum() / stock["Volume"].cumsum()
     fig = go.Figure()
     
