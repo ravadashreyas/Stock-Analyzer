@@ -360,6 +360,17 @@ def plotGraphW(ticker, timeFrame):
 
     return fig
 
+def tecAnalysis(ticker):
+    stock = yf.Ticker(ticker)
+    week = stock.history(period ="5d", interval="5m")
+    month = stock.history(period ="1mo", interval="30m")
+    threeMonth = stock.history(period ="3mo", interval="60m")
+    sixMonth = stock.history(period ="6mo", interval="120m")
+    ytd = stock.history(period ="ytd", interval="24h")
+    year = stock.history(period ="1y", interval="24h")
+    
+
+
 def plotGraph(ticker):
     #How to Plot the data
     todayD = str(date.today())
