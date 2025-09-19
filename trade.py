@@ -58,18 +58,7 @@ def stockInfo():
     return stock
 
 
-def sortData():
-    sorted_df = stock.sort_values(by="Close", ascending=False)
-     #finding all time high
-    max_close = sorted_df["Close"].max()
-    
 
-def checkCond():
-    #check condition for column
-    close = stock[["Close"]].reset_index()
-    close["Above 230"] = close["Close"] > 230
-    true = close[close["Above 230"] == True]
-    #print(true.head(50))
 
 def optionsData(ticker):
     stockData = yf.Ticker(ticker)
@@ -360,14 +349,88 @@ def plotGraphW(ticker, timeFrame):
 
     return fig
 
+def getHigh(stock):
+    sortedDf = stock.sort_values(by="High", ascending=False)
+     #finding high
+    maxClose = sortedDf["High"].max()
+    return(maxClose)
+
+def getLow(stock):
+    sortedDf = stock.sort_values(by="High", ascending=False)
+     #finding high
+    minClose = sortedDf["Low"].min()
+    return(minClose)
+    
+
+def checkCond(ticker):
+    #check condition for column
+    stock = yf.Ticker(ticker)
+    close = stock[["Close"]].reset_index()
+    close["Above 230"] = close["Close"] > 230
+    
+
 def tecAnalysis(ticker):
     stock = yf.Ticker(ticker)
     week = stock.history(period ="5d", interval="5m")
     month = stock.history(period ="1mo", interval="30m")
     threeMonth = stock.history(period ="3mo", interval="60m")
-    sixMonth = stock.history(period ="6mo", interval="120m")
-    ytd = stock.history(period ="ytd", interval="24h")
-    year = stock.history(period ="1y", interval="24h")
+    sixMonth = stock.history(period ="6mo", interval="4h")
+    ytd = stock.history(period ="ytd", interval="1d")
+    year = stock.history(period ="1y", interval="1d")
+    fiveYear = stock.history(period ="5y", interval="1wk")
+    all = stock.history(period ="max", interval="1mo")
+
+    analysis = {
+        "weekHigh": getHigh(week),
+        "weekLow": getLow(week),
+        "monthHigh": getHigh(month),
+        "monthLow": getLow(month),
+        "threeMonthHigh": getHigh(threeMonth),
+        "threeMonthLow": getLow(threeMonth),
+        "sixMonthHigh": getHigh(sixMonth),
+        "sixMonthLow": getLow(sixMonth),
+        "ytdHigh": getHigh(ytd),
+        "ytdLow": getLow(ytd),
+        "yearHigh": getHigh(year),
+        "yearLow": getLow(year),
+        "fiveYearHigh": getHigh(fiveYear),
+        "fiveYearLow": getLow(fiveYear),
+        "allTimeHigh": getHigh(all),
+        "allTimeLow": getLow(all)
+    }
+    
+    return analysis
+
+def rsiCalc(ticker):
+    stock = yf.Ticker(ticker)
+    data = stock.history(period ="3mo", interval="1d")
+    change = data['Close'].diff()
+    gain = (change.where(change > 0, 0)).fillna(0)
+    loss = (-change.where(change < 0, 0)).fillna(0)
+
+    avgGain = gain.rolling(window=14).mean()
+    avgLoss = loss.rolling(window=14).mean()
+
+    rs = avgGain / avgLoss
+    rsi = 100 - (100 / (1 + rs))
+    data['RSI'] = rsi
+    print(rsi)
+    return data
+
+def movingAvg(ticker):
+    stock = yf.Ticker(ticker)
+    data = stock.history(period ="12mo", interval="1d")
+    data["SMA_20"] = data["Close"].rolling(window=20).mean()
+    data["SMA_50"] = data["Close"].rolling(window=50).mean()
+    data["SMA_200"] = data["Close"].rolling(window=200).mean()
+    data = data.dropna()
+    movAvg = data[["SMA_20", "SMA_50", "SMA_200"]].reset_index()
+    movAvg = movAvg.to_dict(orient='records')
+    return movAvg
+
+tecAnalysis("AAPL")
+rsiCalc("AAPL")
+movingAvg("AAPL")
     
 
 
