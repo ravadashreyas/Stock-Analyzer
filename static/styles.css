@@ -21,8 +21,9 @@ button {
     */
     margin-bottom: 3.2em; 
 }
-#companyName, #currentPrice, #sector, #industry, #marketCap {
+#companyName, #currentPrice, #sector, #industry, #marketCap, #tickerSymbol, #stockChartContainer {
     margin-left: 85px;
+    margin-right: 85px;
 }
 #NavBar {
     margin-top: 1em; 

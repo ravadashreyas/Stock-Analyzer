@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory, render_template
-from trade import stockCheck, stockInfo, sortData, checkCond, optionsData, pData, plotGraphW, fundDataAnnual, fundDataQuart
+from trade import stockCheck, stockInfo, checkCond, optionsData, pData, plotGraphW, fundDataAnnual, fundDataQuart, tecAnalysis
 import json
 
 app = Flask(__name__, static_folder='static')
@@ -42,6 +42,15 @@ def get_earnings():
         return jsonify({"error": "No data found for ticker"})
     return jsonify({"anEarnings": anEarnings, "quEarnings": quEarnings})
 
+@app.route('/api/analysis', methods=['POST'])
+def get_analysis():
+    data = request.get_json()
+    ticker = data['ticker']
+    analysis, stockData = tecAnalysis(ticker)
+    if analysis is None or stockData is None:
+        print("No data found for ticker")
+        return jsonify({"error": "No data found for ticker"})
+    return jsonify({"analysis": analysis, "stockData": stockData})
 
 @app.route('/')
 def serve_frontend():
