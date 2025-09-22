@@ -8,8 +8,6 @@ import numpy as np
 from datetime import date
 import datetime
 
-stockName = ""
-stockData = ""
 
 def stockCheck():
     stockHis = stockData.history(period ="5d")

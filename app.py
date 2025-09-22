@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_from_directory, render_template
 from trade import stockCheck, stockInfo, checkCond, optionsData, pData, plotGraphW, fundDataAnnual, fundDataQuart, tecAnalysis
 import json
 
+
 app = Flask(__name__, static_folder='static')
 @app.route('/api/message', methods=['POST'])
 def get_message():
