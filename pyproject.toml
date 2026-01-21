@@ -1,0 +1,13 @@
+[project]
+name = "tradingbot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "flask>=3.1.2",
+    "matplotlib>=3.10.8",
+    "pandas>=2.3.3",
+    "plotly>=6.5.2",
+    "yfinance>=1.0",
+]
