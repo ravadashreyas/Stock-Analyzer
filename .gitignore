@@ -1,0 +1,14 @@
+# Ignore Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+
+# Ignore secrets (create a .env file for your keys!)
+.env
+
+# System files
+.DS_Store
