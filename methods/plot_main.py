@@ -5,8 +5,11 @@ from datetime import date
 import datetime
 
 def plotGraphW(ticker, timeFrame):
-    #How to Plot the data with plotly
+    timeFrame = (timeFrame or '').upper()
     stock_data = yf.download(ticker, period='max')
+    if stock_data is None or getattr(stock_data, 'empty', False):
+        print(f"No historical data available for {ticker}")
+        return None
     if timeFrame == "ALL":
         first_date = stock_data.index[0]
         todayD = str(date.today())
@@ -71,10 +74,14 @@ def plotGraphW(ticker, timeFrame):
             todayDa = str(date.today())
             stock = yf.download(ticker,period='1d',interval='1m')
         else:
-            one_day = pd.Timestamp.today() - pd.DateOffset(days=1)
-            D1 = one_day.date()
-            todayD = str(date.today())
-            stock = yf.download(ticker,period='1d',interval='1m')
+                one_day = pd.Timestamp.today() - pd.DateOffset(days=1)
+                D1 = one_day.date()
+                todayD = str(date.today())
+                stock = yf.download(ticker,period='1d',interval='1m')
+
+        # If no branch matched or stock wasn't assigned for some reason, fall back to a 1d download
+        if 'stock' not in locals() or stock is None:
+            stock = yf.download(ticker, period='1d', interval='1m', auto_adjust=True)
 
     if stock.empty:
         print(f"No data found for {ticker}")
@@ -82,6 +89,17 @@ def plotGraphW(ticker, timeFrame):
         
     if isinstance(stock.columns, pd.MultiIndex):
         stock.columns = stock.columns.get_level_values(0)
+
+    try:
+        import datetime as _dt
+        is_intraday = any(idx.time() != _dt.time(0, 0) for idx in stock.index)
+        if is_intraday:
+            if stock.index.tz is None:
+                stock.index = stock.index.tz_localize('UTC')
+            stock.index = stock.index.tz_convert('America/New_York')
+            stock = stock.between_time('09:30', '16:00')
+    except Exception:
+        pass
 
     # Calculate indicators
     stock["SMA_20"] = stock["Close"].rolling(window=20).mean()
@@ -150,5 +168,15 @@ def plotGraphW(ticker, timeFrame):
         width=1000,
         height=600
     )
+
+    try:
+        fig.update_xaxes(
+            rangebreaks=[
+                dict(bounds=["sat", "mon"]),  
+                dict(bounds=[16, 9.5], pattern="hour")  
+            ]
+        )
+    except Exception:
+        pass
 
     return fig

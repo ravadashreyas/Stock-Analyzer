@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
 import json
+import time
 from methods.trade import pData
 from methods.plot_main import plotGraphW
 from methods.options import optionsData
 from methods.earnings import fundDataAnnual, fundDataQuart
 from methods.technical_analysis import tecAnalysis 
-from .utils.helpers import create_response, get_ticker_from_json
 
 api_bp = Blueprint('api', __name__)
 
