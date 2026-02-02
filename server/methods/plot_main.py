@@ -4,16 +4,30 @@ import pandas as pd
 from datetime import date
 import datetime
 
+MAX_CACHE_SIZE = 10
 cache = {}
 
 def plotGraphW(ticker, timeFrame):
+    print(len(cache))
     if (ticker in cache) and (str(timeFrame) in cache[ticker]):
         print("Cache used")
+        data = cache.pop(ticker)
+        cache[ticker] = data
         return cache[ticker][timeFrame]
     else:
+        if (len(cache) >= MAX_CACHE_SIZE) and (ticker not in cache):
+            oldest_ticker = next(iter(cache))
+            del cache[oldest_ticker]
+            print(f"Cache full. Evicted oldest: {oldest_ticker}")
+        
+        print(ticker not in cache)
+        print((len(cache) >= MAX_CACHE_SIZE))
+        
         if cache.get(ticker) is None:
             cache[ticker] = {}
-        
+
+
+
         timeFrame = (timeFrame or '').upper()
         stock_data = yf.download(ticker, period='max')
         if stock_data is None or getattr(stock_data, 'empty', False):

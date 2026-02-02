@@ -8,6 +8,7 @@ def optionsData(ticker):
 
     if not avaExp:
         print(f"No options data available for {ticker}.")
+        return None, None, None, None
     first_expiry = avaExp[0]
     opt_chain = stockData.option_chain(first_expiry)
     calls = opt_chain.calls

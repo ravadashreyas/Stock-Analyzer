@@ -1,11 +1,16 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 export default function AnalysisPanel({ ticker }: { ticker: string }) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    loadAnalysis()
+  }, [ticker])
+
   async function loadAnalysis() {
+    if (!ticker) return
     setLoading(true)
     try {
       const res = await fetch('/api/analysis', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticker }) })
@@ -19,9 +24,6 @@ export default function AnalysisPanel({ ticker }: { ticker: string }) {
 
   return (
     <div>
-      <div className="mb-2">
-        <button onClick={() => void loadAnalysis()} className="px-3 py-2 bg-yellow-600 text-white rounded">Load Analysis</button>
-      </div>
       {loading && <div>Loading...</div>}
       {data && (
         <div>

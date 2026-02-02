@@ -6,6 +6,7 @@ from methods.plot_main import plotGraphW
 from methods.options import optionsData
 from methods.earnings import fundDataAnnual, fundDataQuart
 from methods.technical_analysis import tecAnalysis 
+from methods.add_stock import add_equity
 
 api_bp = Blueprint('api', __name__)
 
@@ -30,8 +31,9 @@ def get_options():
     data = request.get_json()
     ticker = data
     calls, puts, callFig, putFig = optionsData(ticker)
-    graphCall = json.loads(callFig.to_json())
-    graphPut = json.loads(putFig.to_json())
+    if callFig is not None and putFig is not None:
+        graphCall = json.loads(callFig.to_json())
+        graphPut = json.loads(putFig.to_json())
     if calls is None or puts is None:
         print("No data found for ticker")
         return jsonify({"error": "No data found for ticker"})
@@ -57,3 +59,12 @@ def get_analysis():
         print("No data found for ticker")
         return jsonify({"error": "No data found for ticker"})
     return jsonify({"analysis": analysis, "stockData": stockData})
+
+@api_bp.route('/add_equity', methods=['POST'])
+def add_to_db():
+    data = request.get_json()
+    user_id = data["user_id"]
+    ticker = data['ticker']
+    number_of_shares = data['number_of_shares']
+    date_purchased = data["date_purchased"]
+    add_equity(user_id, ticker, number_of_shares, date_purchased)
