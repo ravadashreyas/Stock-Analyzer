@@ -17,7 +17,7 @@ export default function DashboardClient() {
       const res = await fetch('/api/plot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ticker, timeFrame: '1y' }),
+        body: JSON.stringify({ ticker, timeFrame: '1Y' }),
       })
       const json = await res.json()
       setPlotData(json)
