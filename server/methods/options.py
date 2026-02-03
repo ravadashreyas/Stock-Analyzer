@@ -2,37 +2,56 @@ import plotly.graph_objects as go
 import yfinance as yf
 import numpy as np
 
+
+MAX_CACHE_SIZE = 5
+cache = {}
+
 def optionsData(ticker):
-    stockData = yf.Ticker(ticker)
-    avaExp = stockData.options
+    if (ticker in cache):
+        print("Options cache used")
+        data = cache.pop(ticker)
+        cache[ticker] = data
+        callsDict, putsDict, callFig, putFig = cache[ticker]
+        return callsDict, putsDict, callFig, putFig
+    else:
+        if (len(cache) >= MAX_CACHE_SIZE) and (ticker not in cache):
+            oldest_ticker = next(iter(cache))
+            del cache[oldest_ticker]
+            print(f"Cache full. Evicted oldest Options: {oldest_ticker}")
 
-    if not avaExp:
-        print(f"No options data available for {ticker}.")
-        return None, None, None, None
-    first_expiry = avaExp[0]
-    opt_chain = stockData.option_chain(first_expiry)
-    calls = opt_chain.calls
-    puts = opt_chain.puts
+        stockData = yf.Ticker(ticker)
+        avaExp = stockData.options
 
-    if calls.empty and puts.empty:
-            print(f"Option chain for {ticker} is empty.")
-            return None, None
-    if calls.empty:
-            print(f"Calls data is empty for {ticker}.")
-            return None, None
-    if puts.empty:
-            print(f"Puts data is empty for {ticker}.")
-            return None, None
-    
-    calls = calls.replace({np.nan: None})
-    puts = puts.replace({np.nan: None})
-    callsDict = calls.to_dict(orient='records')
-    putsDict = puts.to_dict(orient='records')
-    callGraph = "callGraph"
-    putGraph = "putGraph"
-    callFig = plotBarGraph(callsDict, ticker, callGraph)
-    putFig = plotBarGraph(putsDict, ticker, putGraph)
-    return callsDict, putsDict, callFig, putFig
+        if not avaExp:
+            print(f"No options data available for {ticker}.")
+            return None, None, None, None
+        first_expiry = avaExp[0]
+        opt_chain = stockData.option_chain(first_expiry)
+        calls = opt_chain.calls
+        puts = opt_chain.puts
+
+        if calls.empty and puts.empty:
+                print(f"Option chain for {ticker} is empty.")
+                return None, None
+        if calls.empty:
+                print(f"Calls data is empty for {ticker}.")
+                return None, None
+        if puts.empty:
+                print(f"Puts data is empty for {ticker}.")
+                return None, None
+        
+        calls = calls.replace({np.nan: None})
+        puts = puts.replace({np.nan: None})
+        callsDict = calls.to_dict(orient='records')
+        putsDict = puts.to_dict(orient='records')
+        callGraph = "callGraph"
+        putGraph = "putGraph"
+        callFig = plotBarGraph(callsDict, ticker, callGraph)
+        putFig = plotBarGraph(putsDict, ticker, putGraph)
+
+        cache[ticker] = callsDict, putsDict, callFig, putFig
+        
+        return callsDict, putsDict, callFig, putFig
 
 def plotBarGraph(options, ticker, graphType):
     ticker = ticker

@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react'
+import EarningsTable from './EarningsTable'
 
 export default function EarningsPanel({ ticker }: { ticker: string }) {
   const [data, setData] = useState<any>(null)
@@ -28,9 +29,13 @@ export default function EarningsPanel({ ticker }: { ticker: string }) {
       {data && (
         <div>
           <h4>Annual</h4>
-          <pre className="max-h-44 overflow-auto bg-slate-100 p-2">{JSON.stringify(data.anEarnings, null, 2)}</pre>
+            <div className="max-h-96 overflow-y-auto">
+                <EarningsTable earnings={data.anEarnings} />
+            </div>
           <h4>Quarterly</h4>
-          <pre className="max-h-44 overflow-auto bg-slate-100 p-2">{JSON.stringify(data.quEarnings, null, 2)}</pre>
+          <div className="max-h-96 overflow-y-auto">
+                <EarningsTable earnings={data.quEarnings} />
+        </div>
         </div>
       )}
     </div>
