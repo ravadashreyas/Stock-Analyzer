@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import PlotlyChart from './PlotlyChart'
+import PlotlyChart from '../PlotlyChart'
 import OptionsTable from './OptionsTable'
 
 export default function OptionsPanel({ ticker }: { ticker: string }) {

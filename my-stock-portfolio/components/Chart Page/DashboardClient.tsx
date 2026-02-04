@@ -1,9 +1,9 @@
 "use client"
 import React, { useState, useEffect } from 'react'
 import PlotlyChart from './PlotlyChart'
-import OptionsPanel from './OptionsPanel'
-import EarningsPanel from './EarningsPanel'
-import AnalysisPanel from './AnalysisPanel'
+import OptionsPanel from './Options/OptionsPanel'
+import EarningsPanel from './Earnings/EarningsPanel'
+import AnalysisPanel from './Analysis /AnalysisPanel'
 import Link from 'next/link'
 
 export default function DashboardClient() {

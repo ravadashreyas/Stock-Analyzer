@@ -12,7 +12,8 @@ import datetime
 
 
 def stockCheck(ticker):
-    stockHis = ticker.history(period ="5d")
+    dat = yf.Ticker(ticker)
+    stockHis = dat.history(period="5d")
     return stockHis.empty
 
 #downloading YF data

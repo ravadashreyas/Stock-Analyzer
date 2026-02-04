@@ -60,11 +60,13 @@ def get_analysis():
         return jsonify({"error": "No data found for ticker"})
     return jsonify({"analysis": analysis, "stockData": stockData})
 
-@api_bp.route('/add_equity', methods=['POST'])
+@api_bp.route('/trade', methods=['POST'])
 def add_to_db():
     data = request.get_json()
     user_id = data["user_id"]
     ticker = data['ticker']
     number_of_shares = data['number_of_shares']
     date_purchased = data["date_purchased"]
-    add_equity(user_id, ticker, number_of_shares, date_purchased)
+    if add_equity(user_id, ticker, number_of_shares, date_purchased) == False:
+        return jsonify({"error": "Invalid Input"})
+    return jsonify({"Result": "Successful Trade"})
