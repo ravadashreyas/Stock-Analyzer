@@ -12,8 +12,8 @@ cursor = conn.cursor()
 
 cursor.execute("""CREATE TABLE portfolio (
         user_id text,
-
         ticker text,
+        price_at_purchase int,
         number_of_shares int,
         date_purchased text
       )

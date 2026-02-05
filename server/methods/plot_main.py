@@ -19,10 +19,7 @@ def plotGraphW(ticker, timeFrame):
             oldest_ticker = next(iter(cache))
             del cache[oldest_ticker]
             print(f"Cache full. Evicted oldest: {oldest_ticker}")
-        
-        print(ticker not in cache)
-        print((len(cache) >= MAX_CACHE_SIZE))
-        
+
         if cache.get(ticker) is None:
             cache[ticker] = {}
 
@@ -184,7 +181,7 @@ def plotGraphW(ticker, timeFrame):
             ))
 
         fig.update_layout(
-
+            template='plotly_dark',
             xaxis_title='Date',
             yaxis_title='Price',
             legend_title='Legend',

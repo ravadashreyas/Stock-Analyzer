@@ -83,7 +83,7 @@ def plotBarGraph(options, ticker, graphType):
         orientation='h'
     ))
     fig.update_layout(
-
+        template='plotly_dark',
         xaxis_title='Volume',
         yaxis_title='Strike Price',
         width=700,
@@ -121,7 +121,7 @@ def plotBarGraph(options, ticker, graphType):
         orientation='h'
     ))
     fig.update_layout(
-
+        template='plotly_dark',
         xaxis_title='Volume',
         yaxis_title='Strike Price',
         width=700,

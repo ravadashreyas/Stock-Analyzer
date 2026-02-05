@@ -1,5 +1,5 @@
 import sqlite3
-from .trade import stockCheck
+from .trade import stockCheck, pData
 from pathlib import Path
 
 def add_equity(user_id, ticker, number_of_shares, date_purchased):
@@ -12,16 +12,18 @@ def add_equity(user_id, ticker, number_of_shares, date_purchased):
 
             cursor = conn.cursor()
 
+            price_at_purchase = pData(ticker)["Current Price"]
+
             query = """
-                        INSERT INTO portfolio (user_id, ticker, number_of_shares, date_purchased)
-                        VALUES (?, ?, ?, ?)
+                        INSERT INTO portfolio (user_id, ticker, price_at_purchase, number_of_shares, date_purchased)
+                        VALUES (?, ?, ?, ?, ?)
                   """
 
-            cursor.execute(query, (user_id, ticker, number_of_shares, date_purchased))
+            cursor.execute(query, (user_id, ticker, price_at_purchase, number_of_shares, date_purchased))
 
 
 
-            print(f"{user_id} added {number_of_shares} of {ticker} to the database")
+            print(f"{user_id} added {number_of_shares} of {ticker} to the database at a price of {price_at_purchase}")
 
             conn.commit()
 
@@ -29,10 +31,7 @@ def add_equity(user_id, ticker, number_of_shares, date_purchased):
 
             return True
       else:
-            print("False")
-            print(is_valid_number(number_of_shares))
-            print(not(stockCheck(ticker)))
-            print(valid_date(date_purchased))
+            print("Unable to add Purchase")
             return False
             
 
