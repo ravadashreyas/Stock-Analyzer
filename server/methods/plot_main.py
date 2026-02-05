@@ -8,17 +8,17 @@ MAX_CACHE_SIZE = 10
 cache = {}
 
 def plotGraphW(ticker, timeFrame):
-    print(len(cache))
+
     if (ticker in cache) and (str(timeFrame) in cache[ticker]):
-        print("Cache used")
         data = cache.pop(ticker)
         cache[ticker] = data
+        print("Used Plot Cache")
         return cache[ticker][timeFrame]
     else:
         if (len(cache) >= MAX_CACHE_SIZE) and (ticker not in cache):
             oldest_ticker = next(iter(cache))
             del cache[oldest_ticker]
-            print(f"Cache full. Evicted oldest: {oldest_ticker}")
+
 
         if cache.get(ticker) is None:
             cache[ticker] = {}
@@ -26,19 +26,11 @@ def plotGraphW(ticker, timeFrame):
 
 
         timeFrame = (timeFrame or '').upper()
-        stock_data = yf.download(ticker, period='max')
-        if stock_data is None or getattr(stock_data, 'empty', False):
-            print(f"No historical data available for {ticker}")
-            return None
+
         if timeFrame == "ALL":
-            first_date = stock_data.index[0]
-            todayD = str(date.today())
-            stock = yf.download(ticker, start=first_date, end=todayD, interval="1d", auto_adjust=True)
+            stock = yf.download(ticker, period='max', interval='1d', auto_adjust=True)
         elif timeFrame == "5Y":
-            five_years = pd.Timestamp.today() - pd.DateOffset(years=5)
-            Y5 = five_years.date()
-            todayD = str(date.today())
-            stock = yf.download(ticker, start=Y5, end=todayD, interval="1d", auto_adjust=True)
+            stock = yf.download(ticker, period='5y', interval='1d', auto_adjust=True)
         elif timeFrame == "1Y":
             one_year = pd.Timestamp.today() - pd.DateOffset(years=1)
             Y1 = one_year.date()
@@ -99,11 +91,15 @@ def plotGraphW(ticker, timeFrame):
                     todayD = str(date.today())
                     stock = yf.download(ticker,period='1d',interval='1m')
 
-            # If no branch matched or stock wasn't assigned for some reason, fall back to a 1d download
             if 'stock' not in locals() or stock is None:
                 stock = yf.download(ticker, period='1d', interval='1m', auto_adjust=True)
+        else:
+            three_months = pd.Timestamp.today() - pd.DateOffset(months=3)
+            M3 = three_months.date()
+            todayD = str(date.today())
+            stock = yf.download(ticker, start=M3, end=todayD, interval="1h", auto_adjust=True)
 
-        if stock.empty:
+        if stock is None or stock.empty:
             print(f"No data found for {ticker}")
             return None
             
@@ -118,10 +114,9 @@ def plotGraphW(ticker, timeFrame):
                     stock.index = stock.index.tz_localize('UTC')
                 stock.index = stock.index.tz_convert('America/New_York')
                 stock = stock.between_time('09:30', '16:00')
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Time processing error: {e}")
 
-        # Calculate indicators
         stock["SMA_20"] = stock["Close"].rolling(window=20).mean()
         stock["SMA_50"] = stock["Close"].rolling(window=50).mean()
         stock["SMA_200"] = stock["Close"].rolling(window=200).mean()
@@ -129,20 +124,24 @@ def plotGraphW(ticker, timeFrame):
         stock["VWAP"] = ((stock["High"] + stock["Low"] + stock["Close"]) / 3 * stock["Volume"]).cumsum() / stock["Volume"].cumsum()
         fig = go.Figure()
         
-        # Always plot Close price
+        close_list = stock['Close'].tolist()
+        date_strings = [str(d) for d in stock.index]
+        close_list = stock['Close'].tolist()
+        date_strings = [str(d) for d in stock.index]
+        
         fig.add_trace(go.Scatter(
-            x=stock.index.tolist(), 
-            y=stock['Close'].tolist(), 
+            x=date_strings, 
+            y=close_list, 
             mode='lines', 
             name='Close Price', 
             line=dict(color='blue', width=2)
         ))
         
-        # Plot SMAs with different colors - filter out NaN values
         if stock['SMA_20'].notna().any():
             sma20_data = stock['SMA_20'].dropna()
+            sma20_dates = [str(d) for d in sma20_data.index]
             fig.add_trace(go.Scatter(
-                x=sma20_data.index.tolist(), 
+                x=sma20_dates, 
                 y=sma20_data.tolist(), 
                 mode='lines', 
                 name='SMA 20', 
@@ -151,8 +150,9 @@ def plotGraphW(ticker, timeFrame):
         
         if stock['SMA_50'].notna().any():
             sma50_data = stock['SMA_50'].dropna()
+            sma50_dates = [str(d) for d in sma50_data.index]
             fig.add_trace(go.Scatter(
-                x=sma50_data.index.tolist(), 
+                x=sma50_dates, 
                 y=sma50_data.tolist(), 
                 mode='lines', 
                 name='SMA 50', 
@@ -161,19 +161,20 @@ def plotGraphW(ticker, timeFrame):
         
         if stock['SMA_200'].notna().any():
             sma200_data = stock['SMA_200'].dropna()
+            sma200_dates = [str(d) for d in sma200_data.index]
             fig.add_trace(go.Scatter(
-                x=sma200_data.index.tolist(), 
+                x=sma200_dates, 
                 y=sma200_data.tolist(), 
                 mode='lines', 
                 name='SMA 200', 
                 line=dict(color='purple', width=1)
             ))
         
-        # Plot VWAP
         if stock['VWAP'].notna().any():
             vwap_data = stock['VWAP'].dropna()
+            vwap_dates = [str(d) for d in vwap_data.index]
             fig.add_trace(go.Scatter(
-                x=vwap_data.index.tolist(), 
+                x=vwap_dates, 
                 y=vwap_data.tolist(), 
                 mode='lines', 
                 name='VWAP', 
@@ -186,21 +187,23 @@ def plotGraphW(ticker, timeFrame):
             yaxis_title='Price',
             legend_title='Legend',
             width=1000,
-            height=600
+            height=600,
+            xaxis=dict(type='date')
         )
 
-        try:
-            fig.update_xaxes(
-                rangebreaks=[
-                    dict(bounds=["sat", "mon"]),  
-                    dict(bounds=[16, 9.5], pattern="hour")  
-                ]
-            )
-        except Exception:
-            pass
+        if timeFrame not in ['5Y', 'ALL']:
+            try:
+                fig.update_xaxes(
+                    rangebreaks=[
+                        dict(bounds=["sat", "mon"]),  
+                        dict(bounds=[16, 9.5], pattern="hour")  
+                    ]
+                )
+            except Exception:
+                pass
         
+
         
         cache[ticker][timeFrame] = fig
-        
 
         return fig

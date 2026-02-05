@@ -1,6 +1,6 @@
 import sqlite3
 from pathlib import Path
-from .trade import pData
+from methods.trade import pData
 import time
 import threading
 
@@ -22,14 +22,14 @@ def get_user_holdings(user_id):
     else:
         current_dir = Path(__file__).resolve().parent
 
-        db_path = current_dir / "data" / "portfolio.db"
+        db_path = current_dir / "data" / "StockHistory.db"
 
         conn = sqlite3.connect(str(db_path))
             
         conn.row_factory = sqlite3.Row 
         cursor = conn.cursor()
             
-        query = "SELECT ticker, number_of_shares, price_at_purchase, date_purchased FROM portfolio WHERE user_id = ?"
+        query = "SELECT ticker, number_of_shares, action, price_at_action, date_purchased FROM history WHERE user_id = ?"
         cursor.execute(query, (user_id,))
             
         rows = cursor.fetchall()
@@ -39,13 +39,10 @@ def get_user_holdings(user_id):
         results = []
         for row in rows:
             stock_data = pData(row["ticker"])
-            current_price = float(stock_data["Current Price"]) 
-            purchase_price = float(row["price_at_purchase"])
+            purchase_price = float(row["price_at_action"])
             shares = float(row["number_of_shares"])
 
             total_cost = shares * purchase_price
-            current_cost = shares * current_price
-            gain_loss = (current_price - purchase_price) * shares
             stock_name = stock_data["Company Name"]
 
             
@@ -53,13 +50,10 @@ def get_user_holdings(user_id):
                 "date_of_purchase": row["date_purchased"],
                 "stock_name": stock_name,
                 "stock_ticker": row["ticker"],
-                "price_at_purchase": purchase_price,
+                "action": row["action"],
+                "price_at_action": purchase_price,
                 "number_of_shares": shares,
-                "current_price": current_price,
                 "total_cost": total_cost,
-                "current_value": current_cost,
-                "gain_loss": gain_loss,
-                "percent_gain_loss": (gain_loss / total_cost) * 100 if total_cost != 0 else 0
             })
         cache[user_id] = results  
         return results

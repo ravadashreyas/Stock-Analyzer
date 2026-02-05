@@ -7,26 +7,30 @@ def add_equity(user_id, ticker, number_of_shares, date_purchased):
             current_dir = Path(__file__).resolve().parent
 
             db_path = current_dir / "data" / "portfolio.db"
+            stock_db_path = current_dir / "data" / "portfolio.db"
 
             conn = sqlite3.connect(str(db_path))
-
             cursor = conn.cursor()
 
             price_at_purchase = pData(ticker)["Current Price"]
 
+            # Insert into portfolio
             query = """
                         INSERT INTO portfolio (user_id, ticker, price_at_purchase, number_of_shares, date_purchased)
                         VALUES (?, ?, ?, ?, ?)
                   """
-
             cursor.execute(query, (user_id, ticker, price_at_purchase, number_of_shares, date_purchased))
 
-
+            # Insert into history
+            query2 = """
+                        INSERT INTO history (user_id, transaction_type, ticker, price_at_purchase, number_of_shares, date_purchased)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                  """
+            cursor.execute(query2, (user_id, 'buy', ticker, price_at_purchase, number_of_shares, date_purchased))
 
             print(f"{user_id} added {number_of_shares} of {ticker} to the database at a price of {price_at_purchase}")
 
             conn.commit()
-
             conn.close()
 
             return True

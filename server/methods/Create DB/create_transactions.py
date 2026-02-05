@@ -4,16 +4,17 @@ from pathlib import Path
 
 current_dir = Path(__file__).resolve().parent
 
-db_path = current_dir / "data" / "portfolio.db"
+db_path = current_dir.parent / "data" / "StockHistory.db"
 
 conn = sqlite3.connect(str(db_path))
 
 cursor = conn.cursor()
 
-cursor.execute("""CREATE TABLE portfolio (
+cursor.execute("""CREATE TABLE history (
         user_id text,
+        action text,
         ticker text,
-        price_at_purchase int,
+        price_at_action int,
         number_of_shares int,
         date_purchased text
       )

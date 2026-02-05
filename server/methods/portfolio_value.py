@@ -118,7 +118,7 @@ def get_user_equity(user_id, time_frame='3M'):
         mode='lines', 
         name='Total Value',
         fill='tozeroy', 
-        line=dict(color='#00C805', width=3)
+        line=dict(color='#00C805' if pct_change > 0 else '#C80000', width=3)
     ))
 
     fig.update_layout(
