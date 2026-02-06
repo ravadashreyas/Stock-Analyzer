@@ -1,5 +1,6 @@
 import Link from 'next/link'
-
+import HistoryTable from './HistoryTable'
+ 
 export default function HistoryClient(){
     return(
         <div className="">
@@ -15,6 +16,9 @@ export default function HistoryClient(){
             </svg>
             <span className="sr-only">Home</span>
                 </Link>
+                <div>
+                    <HistoryTable/>
+                </div>
         </div>
     )
 }

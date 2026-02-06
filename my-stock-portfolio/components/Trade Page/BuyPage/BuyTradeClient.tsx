@@ -1,20 +1,20 @@
-"use client";
+"use client"
 import React, { useState, useEffect } from 'react'
-import TradeTicker from './TradeTicker'
-import TradeDate from './TradeDate'
-import TradeAmount from './TradeAmount'
+import TradeTicker from '../TradeTicker'
+import TradeDate from '../TradeDate'
+import TradeAmount from '../TradeAmount'
 import Link from 'next/link'
 
-export default function TradeClient() {
+export default function BuyTradeClient() {
     const [ticker, setTicker] = useState('')
     const [number_of_shares, setNumberOfShares] = useState('')
     const [date_purchased, setDate] = useState('')
     const [vaild, setVaild] = useState('')
-    const [user_id] = "User_108"
+    const user_id = "User_108"
 
     async function stockAction() {
         try {
-            const res = await fetch('/api/trade', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id, ticker, number_of_shares, date_purchased }) })
+            const res = await fetch('/api/buyTrade', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id, ticker, number_of_shares, date_purchased }) })
             const json = await res.json()
             setVaild(json)
         } catch (err) {

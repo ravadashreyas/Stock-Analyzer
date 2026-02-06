@@ -54,11 +54,11 @@ def get_earnings():
 def get_analysis():
     data = request.get_json()
     ticker = data['ticker']
-    analysis, stockData = tecAnalysis(ticker)
-    if analysis is None or stockData is None:
+    analysis = tecAnalysis(ticker)
+    if analysis is None:
         print("No data found for ticker")
         return jsonify({"error": "No data found for ticker"})
-    return jsonify({"analysis": analysis, "stockData": stockData})
+    return jsonify({"analysis": analysis})
 
 @api_bp.route('/buyTrade', methods=['POST'])
 def add_to_db():

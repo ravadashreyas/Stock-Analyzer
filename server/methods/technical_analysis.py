@@ -219,4 +219,4 @@ def tecAnalysis(ticker):
     stockDataFinal = stockDataFinal.replace({np.nan: None})
     stockDataFinal['Date'] = stockDataFinal['Date'].dt.strftime('%Y-%m-%d')
     stockDataDict = stockDataFinal.to_dict(orient='records')
-    return analysis, stockDataDict
+    return analysis
