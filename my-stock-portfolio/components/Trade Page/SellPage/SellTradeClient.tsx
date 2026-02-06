@@ -10,11 +10,10 @@ export default function SellTradeClient() {
     const [number_of_shares, setNumberOfShares] = useState('')
     const [date_purchased, setDate] = useState('')
     const [vaild, setVaild] = useState('')
-    const user_id = "User_108"
 
     async function stockAction() {
         try {
-            const res = await fetch('/api/sellTrade', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id, ticker, number_of_shares}) })
+            const res = await fetch('/api/sellTrade', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ticker, number_of_shares}) })
             const json = await res.json()
             setVaild(json)
         } catch (err) {
@@ -47,13 +46,6 @@ export default function SellTradeClient() {
                 <TradeAmount
                     value={number_of_shares}
                     onChange={setNumberOfShares}
-                />
-            </div>
-            <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-6">
-                <p>Date of Order</p>
-                <TradeDate
-                    value={date_purchased}
-                    onChange={setDate}
                 />
             </div>
             <button

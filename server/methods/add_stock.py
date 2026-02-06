@@ -1,9 +1,10 @@
 import sqlite3
 from .trade import stockCheck, pData
 from pathlib import Path
+from datetime import datetime
 
 def add_equity(user_id, ticker, number_of_shares, date_purchased):
-      if is_valid_number(number_of_shares) and not(stockCheck(ticker)) and valid_date(date_purchased)  :
+      if is_valid_number(number_of_shares) and not(stockCheck(ticker)) and valid_date(date_purchased) and not (user_id == None) :
             current_dir = Path(__file__).resolve().parent
 
             db_path = current_dir / "data" / "portfolio.db"
@@ -33,14 +34,22 @@ def add_equity(user_id, ticker, number_of_shares, date_purchased):
             conn.commit()
             conn.close()
 
-            return True
+            return True, {"Result": "Successful Trade"}
       else:
             print("Unable to add Purchase")
-            return False
+            if not (valid_date(date_purchased)):
+                 return False, {"Result": "Invalid Date"}
+            if not (is_valid_number(number_of_shares)):
+                 return False, {"Result": "Invalid Number of Shares"}
+            return False, {"Result": "User not signed in"}
             
 
 def valid_date(date):
-      return True
+    try:
+        datetime.strptime(date, '%Y-%m-%d')
+        return True
+    except ValueError:
+        return False
 
 def is_valid_number(s):
     try:

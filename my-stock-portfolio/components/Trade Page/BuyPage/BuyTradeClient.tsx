@@ -9,16 +9,15 @@ export default function BuyTradeClient() {
     const [ticker, setTicker] = useState('')
     const [number_of_shares, setNumberOfShares] = useState('')
     const [date_purchased, setDate] = useState('')
-    const [vaild, setVaild] = useState('')
-    const user_id = "User_108"
+    const [valid, setValid] = useState('')
 
     async function stockAction() {
         try {
-            const res = await fetch('/api/buyTrade', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id, ticker, number_of_shares, date_purchased }) })
+            const res = await fetch('/api/buyTrade', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ticker, number_of_shares, date_purchased }) })
             const json = await res.json()
-            setVaild(json)
+            setValid(json)
         } catch (err) {
-            alert('Failed to load analysis: ' + err)
+            alert('Failed to add Trade: ' + err)
         }
     }
     return (
@@ -55,6 +54,9 @@ export default function BuyTradeClient() {
                     value={date_purchased}
                     onChange={setDate}
                 />
+            </div>
+            <div className='border border-zince-200 dark:border-zinc-800 rounded-lg p-6 text-center'>
+                <p>{valid.Result}</p>
             </div>
             <button
                 onClick={stockAction}

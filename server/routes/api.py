@@ -67,9 +67,10 @@ def add_to_db():
     ticker = data['ticker']
     number_of_shares = data['number_of_shares']
     date_purchased = data["date_purchased"]
-    if add_equity(user_id, ticker, number_of_shares, date_purchased) == False:
-        return jsonify({"error": "Invalid Input"})
-    return jsonify({"Result": "Successful Trade"})
+    result, err = add_equity(user_id, ticker, number_of_shares, date_purchased)
+    if not(result):
+        return jsonify(err)
+    return jsonify(err)
 
 @api_bp.route('/sellTrade', methods=['POST'])
 def remove_from_db():
@@ -77,9 +78,10 @@ def remove_from_db():
     user_id = session.get('user_id')
     ticker = data['ticker']
     number_of_shares = data['number_of_shares']
-    if add_equity(user_id, ticker, number_of_shares) == False:
-        return jsonify({"error": "Invalid Input"})
-    return jsonify({"Result": "Successful Trade"})
+    result, err = add_equity(user_id, ticker, number_of_shares)
+    if not(result):
+        return jsonify(err)
+    return jsonify(err)
 
 @api_bp.route('/portfolio', methods=['GET'])
 def get_portfolio():
