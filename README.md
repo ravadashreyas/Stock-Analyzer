@@ -1,4 +1,4 @@
-# TradingBot Dashboard
+# Portfolio Manager Dashboard
 
 A full-stack web application used to track and analyze your stock portfolio. This project features a **Next.js** frontend for an interactive dashboard and a **Flask** backend for data processing, financial analysis, and portfolio management.
 
