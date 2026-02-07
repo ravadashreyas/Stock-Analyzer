@@ -28,7 +28,7 @@ Before you begin, ensure you have the following installed:
 - **Redis**: Required for backend session management.
   - *Mac (Homebrew)*: `brew install redis`
 
-## 🛠️ Installation
+## Installation
 
 ### 1. Clone the Repository
 
@@ -79,7 +79,7 @@ SECRET_KEY=your_secret_key_here
 REDIS_URL=redis://localhost:6379
 ```
 
-## 🏃 Running the Application
+## Running the Application
 
 To run the full stack, you will need **three** terminal windows.
 
@@ -119,7 +119,7 @@ The frontend will start on `http://localhost:3000`.
   - `methods/`: Business logic for stock analysis and data fetching.
   - `data/`: SQLite database file (generated).
 
-## ❓ Troubleshooting
+## Troubleshooting
 
 ### API Requests Failing (404)
 If frontend requests to `/api/...` are failing with 404 errors:
