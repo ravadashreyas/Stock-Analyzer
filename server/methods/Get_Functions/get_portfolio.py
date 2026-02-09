@@ -16,7 +16,7 @@ t = threading.Thread(target=clear_cache_periodically, daemon=True)
 t.start()
 
 def get_user_holdings(user_id):
-    if cache:
+    if user_id in cache:
         print("Using Portfolio Cache")
         return cache[user_id]
     else:

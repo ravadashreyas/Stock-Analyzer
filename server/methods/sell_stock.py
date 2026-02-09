@@ -20,10 +20,15 @@ def sell_equity(user_id, ticker, number_of_shares):
             cursor.execute(query_shares, (user_id, ticker))
             total_shares = cursor.fetchone()[0]
 
+            if not (total_shares is None):
+                total_shares = float(total_shares)
+            else:
+                return False, {"Result": f"User does not have this many shares of {ticker}"}
+            number_of_shares = float(number_of_shares)
+
             if total_shares == number_of_shares:
                 query_delete = """
                             DELETE FROM portfolio WHERE user_id = ? AND ticker = ?
-                            VALUES (?, ?)
                     """
                 cursor.execute(query_delete, (user_id, ticker))
             elif total_shares > number_of_shares:
@@ -35,9 +40,6 @@ def sell_equity(user_id, ticker, number_of_shares):
                 cursor.execute(query_change, ((total_shares - number_of_shares), user_id, ticker))
             else:
                  return False, {"Result": "User does not have this many shares of {ticker}"}
-            
-                 
-
             
             query2 = """
                         INSERT INTO history (user_id, transaction_type, ticker, price_at_purchase, number_of_shares)

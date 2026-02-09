@@ -6,6 +6,7 @@ from methods.options import optionsData
 from methods.earnings import fundDataAnnual, fundDataQuart
 from methods.technical_analysis import tecAnalysis 
 from methods.add_stock import add_equity
+from methods.sell_stock import sell_equity
 from methods.Get_Functions.get_portfolio import get_user_holdings
 from methods.portfolio_value import get_user_equity
     
@@ -78,7 +79,7 @@ def remove_from_db():
     user_id = session.get('user_id')
     ticker = data['ticker']
     number_of_shares = data['number_of_shares']
-    result, err = add_equity(user_id, ticker, number_of_shares)
+    result, err = sell_equity(user_id, ticker, number_of_shares)
     if not(result):
         return jsonify(err)
     return jsonify(err)

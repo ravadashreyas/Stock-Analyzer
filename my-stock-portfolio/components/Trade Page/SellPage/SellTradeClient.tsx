@@ -9,13 +9,13 @@ export default function SellTradeClient() {
     const [ticker, setTicker] = useState('')
     const [number_of_shares, setNumberOfShares] = useState('')
     const [date_purchased, setDate] = useState('')
-    const [vaild, setVaild] = useState('')
+    const [valid, setValid] = useState('')
 
     async function stockAction() {
         try {
             const res = await fetch('/api/sellTrade', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ticker, number_of_shares}) })
             const json = await res.json()
-            setVaild(json)
+            setValid(json)
         } catch (err) {
             alert('Failed to load analysis: ' + err)
         }
@@ -47,6 +47,9 @@ export default function SellTradeClient() {
                     value={number_of_shares}
                     onChange={setNumberOfShares}
                 />
+            </div>
+            <div className='border border-zince-200 dark:border-zinc-800 rounded-lg p-6 text-center'>
+                <p>{valid.Result}</p>
             </div>
             <button
                 onClick={stockAction}
