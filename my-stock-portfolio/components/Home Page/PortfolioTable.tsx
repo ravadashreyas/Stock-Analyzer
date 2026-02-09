@@ -41,7 +41,7 @@ export default function PortfolioTable({ portfolio }: { portfolio: PorfolioData[
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-zinc-700">
                     {portfolio.map((port) => (
-                        <tr key={port.stock_ticker} className="hover:bg-gray-50 dark:hover:bg-zinc-900">
+                        <tr key={port.user_id} className="hover:bg-gray-50 dark:hover:bg-zinc-900">
                             <td className={tdClass}>{new Date(port.date_of_purchase).toLocaleDateString()}</td>
                             <td className={`${tdClass} font-bold`}>{port.stock_name}</td>
                             <td className={tdClass}>{port.stock_ticker}</td>
