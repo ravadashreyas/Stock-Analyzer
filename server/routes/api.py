@@ -9,6 +9,7 @@ from methods.add_stock import add_equity
 from methods.sell_stock import sell_equity
 from methods.Get_Functions.get_portfolio import get_user_holdings
 from methods.portfolio_value import get_user_equity
+from methods.Get_Functions.get_transaction_history import get_trade_db
     
 api_bp = Blueprint('api', __name__)
 
@@ -69,8 +70,6 @@ def add_to_db():
     number_of_shares = data['number_of_shares']
     date_purchased = data["date_purchased"]
     result, err = add_equity(user_id, ticker, number_of_shares, date_purchased)
-    if not(result):
-        return jsonify(err)
     return jsonify(err)
 
 @api_bp.route('/sellTrade', methods=['POST'])
@@ -80,9 +79,13 @@ def remove_from_db():
     ticker = data['ticker']
     number_of_shares = data['number_of_shares']
     result, err = sell_equity(user_id, ticker, number_of_shares)
-    if not(result):
-        return jsonify(err)
     return jsonify(err)
+
+@api_bp.route('/getTrades', methods=['GET'])
+def get_trades_db():
+    user_id = session.get('user_id')
+    result = get_trade_db(user_id)
+    return jsonify(result)
 
 @api_bp.route('/portfolio', methods=['GET'])
 def get_portfolio():

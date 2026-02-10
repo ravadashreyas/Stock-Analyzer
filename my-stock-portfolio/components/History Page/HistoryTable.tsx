@@ -8,7 +8,7 @@ interface HistoryData {
     stock_name: string
     stock_ticker: string
     action: string
-    price_at_action: number
+    price_at_purchase: number
     number_of_shares: number
     total_cost: number
 }
@@ -19,18 +19,17 @@ export default function HistoryTable({ history }: { history: HistoryData[] }) {
     const thClass = "px-2 py-1"
     const tdClass = "px-2 py-1"
 
+    useEffect
     return (
         <div className="overflow-x-auto">
             <table className="min-w-full text-xs text-left">
                 <thead className="bg-gray-100 dark:bg-zinc-800 font-medium text-gray-700 dark:text-gray-300">
                     <tr>
-                        <th className={thClass}>Date of Purchase</th>
+                        <th className={thClass}>Date of Action</th>
                         <th className={thClass}>Stock</th>
                         <th className={thClass}>Ticker</th>
                         <th className={thClass}>Action</th>
                         <th className={thClass}>Price at Action</th>
-                        <th className={thClass}>Number of Shares</th>
-                        <th className={thClass}>Current Price</th>
                         <th className={thClass}>Number of Shares</th>
                         <th className={thClass}>Total Cost</th>
                     </tr>
@@ -41,11 +40,10 @@ export default function HistoryTable({ history }: { history: HistoryData[] }) {
                             <td className={tdClass}>{new Date(his.date_of_purchase).toLocaleDateString()}</td>
                             <td className={`${tdClass} font-bold`}>{his.stock_name}</td>
                             <td className={tdClass}>{his.stock_ticker}</td>
-                            <td className={tdClass}>{his.action}</td>
-                            <td className={`${tdClass} text-gray-500`}>{his.price_at_action.toFixed(2)}</td>
-                            <td className={`${tdClass} text-gray-500`}>{his.number_of_shares}</td>
-                            <td className={`${tdClass} text-right`}>{his.number_of_shares.toFixed(2)}</td>
-                            <td className={`${tdClass} text-right`}>{his.total_cost.toFixed(2)}</td>
+                            <td className={tdClass}>{his.action.toUpperCase()}</td>
+                            <td className={`${tdClass} text-gray-500`}>{his.price_at_purchase}</td>
+                            <td className={`${tdClass} `}>{his.number_of_shares.toFixed(2)}</td>
+                            <td className={`${tdClass}`}>{his.total_cost.toFixed(2)}</td>
                         </tr>
                     ))}
                 </tbody>

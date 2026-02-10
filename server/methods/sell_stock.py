@@ -42,10 +42,10 @@ def sell_equity(user_id, ticker, number_of_shares):
                  return False, {"Result": "User does not have this many shares of {ticker}"}
             
             query2 = """
-                        INSERT INTO history (user_id, transaction_type, ticker, price_at_purchase, number_of_shares)
-                        VALUES (?, ?, ?, ?, ?)
+                        INSERT INTO history (user_id, transaction_type, ticker, price_at_purchase, number_of_shares, date_purchased)
+                        VALUES (?, ?, ?, ?, ?, ?)
                   """
-            cursor.execute(query2, (user_id, 'sell', ticker, price_at_purchase, number_of_shares))
+            cursor.execute(query2, (user_id, 'sell', ticker, price_at_purchase, number_of_shares, datetime.today().strftime('%Y-%m-%d')))
 
             print(f"{user_id} sold {number_of_shares} of {ticker} to the database at a price of {price_at_purchase}")
 

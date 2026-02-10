@@ -1,7 +1,25 @@
+"use client"
 import Link from 'next/link'
 import HistoryTable from './HistoryTable'
- 
+import React, { useState, useEffect} from 'react'
+
+
 export default function HistoryClient(){
+    const [data, setData] = useState<any>(null) 
+    useEffect(() => {
+        loadHistory()
+    },[])
+
+    async function loadHistory() {
+        try {
+        const res = await fetch('/api/getTrades', { method: 'GET', headers: { 'Content-Type': 'application/json' }})
+        const json = await res.json()
+        setData(json)
+        } catch (err) {
+        alert('Failed to load Transaction: ' + err)
+        }
+    }
+
     return(
         <div className="">
                 <Link
@@ -17,7 +35,7 @@ export default function HistoryClient(){
             <span className="sr-only">Home</span>
                 </Link>
                 <div>
-                    <HistoryTable/>
+                    <HistoryTable history={data}/>
                 </div>
         </div>
     )
